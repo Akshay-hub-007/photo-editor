@@ -3,6 +3,7 @@ import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@cl
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
+import { Button } from './ui/button'
 
 function Header() {
     const path = usePathname()
@@ -40,11 +41,13 @@ function Header() {
                 )}
                 <div className='flex items-center gap-3 ml:10 md:ml-20'>
                     <SignedOut>
-                        <SignInButton />
+                        <SignInButton>
+                            <Button className="hidden sm:flex" variant="glass" >
+                                Sign In
+                            </Button>
+                        </SignInButton>
                         <SignUpButton>
-                            <button className="bg-[#6c47ff] text-ceramic-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
-                                Sign Up
-                            </button>
+                           <Button variant="primary">Sign Up</Button>
                         </SignUpButton>
                     </SignedOut>
                     <SignedIn>
