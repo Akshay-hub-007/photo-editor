@@ -4,9 +4,14 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
 import { Button } from './ui/button'
-
+import { useStoreUserEffect } from '@/hooks/use-store-user'
+import {BarLoader} from "react-spinners"
+import { Authenticated, Unauthenticated } from 'convex/react'
 function Header() {
     const path = usePathname()
+    const {isLoading}=useStoreUserEffect()
+    if(path.includes("editor"))
+        return ;
     return (
         <div className='fixed left-1/2 top-6 transform -translate-x-1/2 z-50 text-nowarp'>
             <div className='backdrop-blur-md bg-white/10 border border-white/20 rounded-full px-8 py-3 flex items-center  justify-between gap-8'>
@@ -40,7 +45,7 @@ function Header() {
                     </div>
                 )}
                 <div className='flex items-center gap-3 ml:10 md:ml-20'>
-                    <SignedOut>
+                    <Unauthenticated>
                         <SignInButton>
                             <Button className="hidden sm:flex" variant="glass" >
                                 Sign In
@@ -49,11 +54,14 @@ function Header() {
                         <SignUpButton>
                            <Button variant="primary">Sign Up</Button>
                         </SignUpButton>
-                    </SignedOut>
-                    <SignedIn>
+                    </Unauthenticated>
+                    <Authenticated>
                         <UserButton />
-                    </SignedIn>
+                    </Authenticated>
                 </div>
+                {isLoading && <div className='fixed bottom-0 left-0 w-full z-40 flex justify-center'>
+                    <BarLoader width={"95%"} color="#06b6d4"/>
+                </div> }
             </div>
         </div>
     )
