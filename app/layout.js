@@ -4,9 +4,9 @@ import { ThemeProvider } from "@/components/ui/theme-provider";
 import { FloatingShapes } from "@/components/floating-shift";
 import { Toaster } from "sonner";
 import Header from "@/components/Header";
-import { ConvexClientProvider } from "./ConvexClientProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 import { shadesOfPurple } from "@clerk/themes";
+import { ConvexClientProvider } from "./ConvexClientProvider";
 
 const inter = Inter({ subsets: ["latin"] })
 

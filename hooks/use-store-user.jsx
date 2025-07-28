@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { api } from "../convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
 
-export function useStoreUserEffect() {
+export function useStoreUser() {
   const { isLoading, isAuthenticated } = useConvexAuth();
   const { user } = useUser();
   // When this state is set we know the server
