@@ -19,5 +19,37 @@ export default defineSchema({
     }).index("by_token", ["tokenIdentifier"])
       .index("by_email",["email"])
       .searchIndex("search_name",{searchField:"name"})
-      .searchIndex("search_email",{searchField:"email"})
+      .searchIndex("search_email",{searchField:"email"}),
+
+
+      projects:defineTable({
+            title:v.string(),
+            userId:v.id("users"),
+
+            canvaState:v.any(),
+            width:v.number(),
+            height:v.number(),
+
+            originalImage:v.optional(v.string()),
+            currrentImageUrl:v.optional(v.string()),
+            thumbnailImageUrl:v.optional(v.string()),
+
+            activeTransformations:v.optional(v.string()),
+
+            backgroundRemoved:v.optional(v.boolean()),
+            
+            folderId:v.optional(v.string()),
+
+            createdAt:v.number(),
+            updatedAt:v.number()
+
+      }).index("by_user",["userId"])
+      .index("user_by_update",["userId","updatedAt"])
+      .index("by_folder",["folderId"]),
+
+      folders:defineTable({
+        name:v.string(),
+        userId:v.id("users"),
+        createdAt:v.number()
+      }).index("by_user",["userId"])
 })

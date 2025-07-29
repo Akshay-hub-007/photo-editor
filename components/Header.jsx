@@ -7,6 +7,7 @@ import { Button } from './ui/button'
 import { useStoreUser } from '@/hooks/use-store-user'
 import {BarLoader} from "react-spinners"
 import { Authenticated, Unauthenticated } from 'convex/react'
+import { LayoutDashboard } from 'lucide-react'
 function Header() {
     const path = usePathname()
     const {isLoading}=useStoreUser()
@@ -56,6 +57,12 @@ function Header() {
                         </SignUpButton>
                     </SignedOut>
                     <SignedIn>
+                        <Link href="/dashboard">
+                        <Button variant={"glass"}>
+                            <LayoutDashboard className="h-4 w-4"></LayoutDashboard>
+                            <span className='hidden md:flex'>Dashboard</span>
+                        </Button>
+                        </Link>
                         <UserButton />
                     </SignedIn>
                 </div>
