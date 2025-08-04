@@ -1,3 +1,4 @@
+import FeaturesSection from "@/components/features";
 import { Button } from "@/components/ui/button";
 import HeroSection from "@/components/ui/hero";
 import Link from "next/link";
@@ -33,6 +34,8 @@ export default function Home() {
             </div>
           </div>
         </section>
+
+        <FeaturesSection/>
         <section className="py-20 text-center">
           <div className="max-w-4xl  mx-auto px-6">
             <h2 className="text-5xl font-bold  mb-6">Ready to{" "}
