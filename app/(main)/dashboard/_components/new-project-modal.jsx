@@ -1,25 +1,44 @@
+"use client"
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { api } from '@/convex/_generated/api'
 import { usePlanAccess } from '@/hooks/use-plan-access'
-import { useConvexQuery } from '@/hooks/useConvexQuery'
-import { Crown } from 'lucide-react'
-import React from 'react'
+import { useConvexMutation, useConvexQuery } from '@/hooks/useConvexQuery'
+import { Crown, Upload } from 'lucide-react'
+import React, { useState } from 'react'
+import { useDropzone } from 'react-dropzone'
 
 function NewProjectModal({ isOpen, onClose }) {
 
 
+    const [isUploading, setIsUploading] = useState(false)
+    const [projectTitle, setProjectTitle] = useState("")
+    const [selectedFile, setSelectedFile] = useState(null)
+    const [previewUrl, setPreviewUrl] = useState()
+
     const { data: projects } = useConvexQuery(api.projects.getUserProjects)
     const currentProjectCount = projects?.length || 0
-    
+
     const { isFree, canCreateProject } = usePlanAccess()
     const canCreate = canCreateProject(currentProjectCount)
+    const { mutate: createProject } = useConvexMutation(api.projects.create)
     console.log(currentProjectCount)
     const handleClose = () => {
         onClose()
     }
+    const handleCreateProject = () => {
+
+    }
+    const onDrop = () => {
+
+    }
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+        onDrop,
+        accept: [".png", ".jpg", ".jpeg", ".webp", ".gif"]
+    })
+
     return (
         <div>
             <Dialog open={isOpen} onOpenChange={handleClose} >
@@ -55,12 +74,48 @@ function NewProjectModal({ isOpen, onClose }) {
                                 </Alert>
                             )
                         }
+
+                        {
+                            !selectedFile ? <div {...getRootProps()}>
+                                <input {...getInputProps()} />
+                                <Upload className="h-12 w-12 text-white/50 mx-auto mb-4"/>
+                                <h3 className='text-xl font-semibold text-white mb-2'>
+                                    {
+                                    isDragActive ?
+                                        <p>Drop Your Image here </p> :
+                                        <p>Upload an Image</p>
+                                }
+                                </h3>
+                            </div> : (
+                                <>
+
+                                </>
+                            )
+                        }
                     </div>
                     <DialogFooter>
                         <Button
                             variant="ghost"
                             onClick={handleClose}
                             className={"text-white/70 hover:text-white "}>Cancel</Button>
+
+                        <Button
+                            onClick={handleCreateProject}
+                            disabled={isUploading || !selectedFile || !projectTitle.trim()}
+                            variant="primary"
+                        >
+                            {
+                                isUploading ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        Creating....
+                                    </>
+                                ) : (
+                                    "Create Project"
+                                )
+                            }
+                        </Button>
+
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
