@@ -86,6 +86,16 @@ function NewProjectModal({ isOpen, onClose }) {
                                         <p>Upload an Image</p>
                                 }
                                 </h3>
+                               <p className=' text-white/70 mb-4'>
+                                 {
+                                    canCreate?"Drag and drop your image ,or click to browse":
+                                    "Upgrade to Pro to create More Projects"
+                                }
+                               </p>
+
+                               <p className='text-sm text-white/50'>
+                                    Supports PNG,JPG,WEBP up to 20MB
+                               </p>
                             </div> : (
                                 <>
 
