@@ -3,10 +3,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { api } from '@/convex/_generated/api'
 import { usePlanAccess } from '@/hooks/use-plan-access'
 import { useConvexMutation, useConvexQuery } from '@/hooks/useConvexQuery'
-import { Crown, Upload } from 'lucide-react'
+import { Crown, ImageIcon, Upload, X } from 'lucide-react'
 import React, { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 
@@ -17,7 +19,7 @@ function NewProjectModal({ isOpen, onClose }) {
     const [projectTitle, setProjectTitle] = useState("")
     const [selectedFile, setSelectedFile] = useState(null)
     const [previewUrl, setPreviewUrl] = useState()
-
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false)
     const { data: projects } = useConvexQuery(api.projects.getUserProjects)
     const currentProjectCount = projects?.length || 0
 
@@ -26,17 +28,49 @@ function NewProjectModal({ isOpen, onClose }) {
     const { mutate: createProject } = useConvexMutation(api.projects.create)
     console.log(currentProjectCount)
     const handleClose = () => {
+        setIsUploading(false)
+        setPreviewUrl(null)
+        setSelectedFile(null)
+        setProjectTitle("")
         onClose()
     }
-    const handleCreateProject = () => {
+    const handleCreateProject = async () => {
+        if (!canCreate) {
+            setShowUpgradeModal()
+            return;
+        }
 
+        if (!selectedFile || !projectTitle.trim()) {
+            toast.error("Please select the image and enter the project title")
+            return
+        }
+        setIsUploading(true)
+
+        try {
+            const formData=FormData()
+            formData.append("file",selectedFile)
+            formData.append("fileName",selectedFile.name)
+        } catch (error) {
+            
+        }
     }
-    const onDrop = () => {
+    const onDrop = (accecptedFiles) => {
+        console.log(accecptedFiles)
 
+        const file = accecptedFiles[0]
+        if (file) {
+            setSelectedFile(file)
+            setPreviewUrl(URL.createObjectURL(file))
+
+            const nameWithOutExt = file.name.replace(/\.[^/.]+$/, "");
+            setProjectTitle(nameWithOutExt || "Untitled Project")
+        }
     }
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
-        accept: [".png", ".jpg", ".jpeg", ".webp", ".gif"]
+        accept: {
+            'image/*': [".png", ".jpg", ".jpeg", ".webp", ".gif"]
+        }
     })
 
     return (
@@ -76,29 +110,70 @@ function NewProjectModal({ isOpen, onClose }) {
                         }
 
                         {
-                            !selectedFile ? <div {...getRootProps()}>
+                            !selectedFile ? <div {...getRootProps()}
+                                className={`border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all 
+                                ${isDragActive ? "border-cyan-400 bg-cyan-400/5" : "border-white/20 hover:border-white/40"}
+                                                        ${!canCreate ? "opacity-50 pointer-events-none" : ""}`}
+
+
+                            >
                                 <input {...getInputProps()} />
-                                <Upload className="h-12 w-12 text-white/50 mx-auto mb-4"/>
+                                <Upload className="h-12 w-12 text-white/50 mx-auto mb-4" />
                                 <h3 className='text-xl font-semibold text-white mb-2'>
                                     {
-                                    isDragActive ?
-                                        <p>Drop Your Image here </p> :
-                                        <p>Upload an Image</p>
-                                }
+                                        isDragActive ?
+                                            <p>Drop Your Image here </p> :
+                                            <p>Upload an Image</p>
+                                    }
                                 </h3>
-                               <p className=' text-white/70 mb-4'>
-                                 {
-                                    canCreate?"Drag and drop your image ,or click to browse":
-                                    "Upgrade to Pro to create More Projects"
-                                }
-                               </p>
+                                <p className=' text-white/70 mb-4'>
+                                    {
+                                        canCreate ? "Drag and drop your image ,or click to browse" :
+                                            "Upgrade to Pro to create More Projects"
+                                    }
+                                </p>
 
-                               <p className='text-sm text-white/50'>
+                                <p className='text-sm text-white/50'>
                                     Supports PNG,JPG,WEBP up to 20MB
-                               </p>
+                                </p>
                             </div> : (
                                 <>
+                                    <div className='space-y-6'>
+                                        <div className='relative'>
+                                            <img src={previewUrl} alt="Preview"
+                                                className='w-full  h-64 object-cover rounded-xl  border border-white/10' />
+                                            <Button
+                                                variant="ghost"
+                                                size={"icon"}
+                                                onClick={() => {
+                                                    setIsUploading(null)
+                                                    setSelectedFile(null)
+                                                    setProjectTitle("")
+                                                }}
+                                                className={"absolute top-2 right-2 bg-black/50 hover:bg-black/70 text-white"}
+                                            ><X className='w-4 h-4' /></Button>
+                                        </div>
+                                        <div className='space-y-2'>
+                                            <Label htmlFor="project-title" >Project Title</Label>
+                                            <Input
+                                                id="project-title"
+                                                type="text"
+                                                value={projectTitle}
+                                                onChange={(e) => setProjectTitle(e.target.value)}
+                                                className={"bg-slate-700 border-white/20 text-white  placeholder-white/50 hover:border-cyan-400 focus:ring-cyan-400"}
+                                            />
+                                        </div>
+                                        <div className='bg-slate-700/50 rounded-lg p-4'>
+                                            <div className='flex items-center gap-3'>
+                                                <ImageIcon className='w-5 h-5 text-cyan-400' />
+                                                <div>
+                                                    <p className='text-white/70 font-medium'>{selectedFile.name}</p>
+                                                    <p>{(selectedFile.size / 1024 / 1024).toFixed(2)}MB</p>
+                                                </div>
+                                            </div>
 
+                                        </div>
+                                    </div>
                                 </>
                             )
                         }
