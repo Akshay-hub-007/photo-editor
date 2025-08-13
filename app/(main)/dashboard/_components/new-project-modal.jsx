@@ -8,9 +8,11 @@ import { Label } from '@/components/ui/label'
 import { api } from '@/convex/_generated/api'
 import { usePlanAccess } from '@/hooks/use-plan-access'
 import { useConvexMutation, useConvexQuery } from '@/hooks/useConvexQuery'
-import { Crown, ImageIcon, Upload, X } from 'lucide-react'
+import { Crown, ImageIcon, Loader2, Upload, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
+import { toast } from 'sonner'
 
 function NewProjectModal({ isOpen, onClose }) {
 
@@ -22,7 +24,7 @@ function NewProjectModal({ isOpen, onClose }) {
     const [showUpgradeModal, setShowUpgradeModal] = useState(false)
     const { data: projects } = useConvexQuery(api.projects.getUserProjects)
     const currentProjectCount = projects?.length || 0
-
+    const router=useRouter()
     const { isFree, canCreateProject } = usePlanAccess()
     const canCreate = canCreateProject(currentProjectCount)
     const { mutate: createProject } = useConvexMutation(api.projects.create)
@@ -47,11 +49,41 @@ function NewProjectModal({ isOpen, onClose }) {
         setIsUploading(true)
 
         try {
-            const formData=FormData()
+            const formData=new FormData()
             formData.append("file",selectedFile)
             formData.append("fileName",selectedFile.name)
+
+            const uploadresponse=await fetch("/api/imagekit/upload",{
+                method:"POST",
+                body:formData
+            })
+
+            const uploadedData=uploadresponse.json()
+
+            if(!uploadedData.success)
+            {
+                throw new Error(uploadedData.error|| "Failed to upload image")
+            }
+
+            const projectId=await createProject({
+                title:projectTitle.trim(),
+                originalImageUrl:uploadedData.url,
+                currentImageUrl:uploadedData.url,
+                thumbnailUrl:uploadedData.thumbnailUrl,
+                width:uploadedData.width || 800,
+                height:uploadedData.height|| 600,
+                canvasState:null
+            })
+
+            toast.success("Project creates successfullt")
+
+            router.push(`/editor/${projectId}`)
         } catch (error) {
-            
+            console.error("Error in creating project :",error)
+            toast.error(error.message || "Failed to create project.Please try again")
+
+        }finally{
+            setIsUploading(false)
         }
     }
     const onDrop = (accecptedFiles) => {
