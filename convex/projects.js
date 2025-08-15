@@ -13,7 +13,7 @@ export const getUserProjects = query({
       .withIndex("user_by_update", (q) => q.eq("userId", user._id))
       .order("desc")
       .collect();
-
+    console.log(projects)
     return projects;
   },
 });
@@ -27,7 +27,7 @@ export const create = mutation({
     thumbnailUrl: v.optional(v.string()),
     width: v.number(),
     height: v.number(),
-    canvasState: v.optional(v.any()),
+    canvaState: v.optional(v.any()),
   },
   handler: async (ctx, args) => {
     const user = await ctx.runQuery(internal.users.getCurrentUser);
@@ -49,12 +49,12 @@ export const create = mutation({
     const projectId = await ctx.db.insert("projects", {
       title: args.title,
       userId: user._id,
-      originalImageUrl: args.originalImageUrl,
-      currentImageUrl: args.currentImageUrl,
-      thumbnailUrl: args.thumbnailUrl,
+      originalImage: args.originalImageUrl,
+      currrentImageUrl: args.currentImageUrl,
+      thumbnailImageUrl: args.thumbnailUrl,
       width: args.width,
       height: args.height,
-      canvasState: args.canvasState,
+      canvaState: args.canvaState,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
@@ -120,7 +120,7 @@ export const getProject = query({
 export const updateProject = mutation({
   args: {
     projectId: v.id("projects"),
-    canvasState: v.optional(v.any()),
+    canvaState: v.optional(v.any()),
     width: v.optional(v.number()), // ← Add this
     height: v.optional(v.number()), // ← Add this
     currentImageUrl: v.optional(v.string()),
@@ -146,8 +146,8 @@ export const updateProject = mutation({
     };
 
     // Only update provided fields
-    if (args.canvasState !== undefined)
-      updateData.canvasState = args.canvasState;
+    if (args.canvaState !== undefined)
+      updateData.canvaState = args.canvaState;
     if (args.width !== undefined) updateData.width = args.width;
     if (args.height !== undefined) updateData.height = args.height;
     if (args.currentImageUrl !== undefined)

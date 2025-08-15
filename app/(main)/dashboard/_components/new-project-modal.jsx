@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { toast } from 'sonner'
+import UpgradeModal from '../../../../components/upgrademodal'
 
 function NewProjectModal({ isOpen, onClose }) {
 
@@ -37,8 +38,8 @@ function NewProjectModal({ isOpen, onClose }) {
         onClose()
     }
     const handleCreateProject = async () => {
-        if (!canCreate) {
-            setShowUpgradeModal()
+        if (true) {
+            setShowUpgradeModal(true)
             return;
         }
 
@@ -57,9 +58,9 @@ function NewProjectModal({ isOpen, onClose }) {
                 method:"POST",
                 body:formData
             })
-
-            const uploadedData=uploadresponse.json()
-
+            console.log(uploadresponse)
+            const uploadedData=await uploadresponse.json()
+            console.log(uploadedData)
             if(!uploadedData.success)
             {
                 throw new Error(uploadedData.error|| "Failed to upload image")
@@ -72,7 +73,7 @@ function NewProjectModal({ isOpen, onClose }) {
                 thumbnailUrl:uploadedData.thumbnailUrl,
                 width:uploadedData.width || 800,
                 height:uploadedData.height|| 600,
-                canvasState:null
+                canvaState:null
             })
 
             toast.success("Project creates successfullt")
@@ -236,6 +237,12 @@ function NewProjectModal({ isOpen, onClose }) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            <UpgradeModal
+             isOpen={showUpgradeModal}
+             onClose={()=>showUpgradeModal(false)}
+             restrictedTool="projects"
+             reason="Free Plan is limited to 3 projects Uprade to pro for unlimited projects and access to all AI tools."
+            />
         </div>
     )
 }

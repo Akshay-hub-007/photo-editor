@@ -32,14 +32,14 @@ export async function POST(request) {
         const timestamp = Date.now();
         const sanitizeFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, "_") || "upload";
         const uniqueFileName = `${userId}/${timestamp}_${sanitizeFileName}`;
-
+            console.log("1")
         // Upload the file
         const uploadResponse = await imageKit.upload({
             file: buffer,
             fileName: uniqueFileName,
             folder: "/projects"
         });
-
+            console.log("2")
         // Generate thumbnail URL using transformation
         const thumbnailUrl = imageKit.url({
             src: uploadResponse.url,
@@ -52,7 +52,7 @@ export async function POST(request) {
                 }
             ]
         });
-
+        console.log(uploadResponse)
         return NextResponse.json({
             success: true,
             url: uploadResponse.url,
@@ -68,7 +68,7 @@ export async function POST(request) {
         return NextResponse.json(
             {
                 success: false,
-                error: "Failed to upload image",
+                error: "Failed to upload image"+error,
                 details: error.message
             },
             { status: 500 }
