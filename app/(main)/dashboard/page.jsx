@@ -22,7 +22,7 @@ function page() {
           <div>
             <h1 className='text-4xl font-bold text-white mb-2'>Your Projects</h1>
             <p className='text-white/70'>
-              Create and design AI powered image designs</p>
+              Create and design AI powered Image designs</p>
           </div>
           <Button
             onClick={() => setNewProjectModal(true)}
@@ -47,7 +47,7 @@ function page() {
             onClick={() => setNewProjectModal(true)}
             size="lg" variant="primary" className={"gap-2"}>
             <Sparkles className='h-5 w-5' />
-            Start Creating
+            Start  Creating
           </Button>
           </div>
           </>}
