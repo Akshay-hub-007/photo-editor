@@ -38,7 +38,7 @@ function NewProjectModal({ isOpen, onClose }) {
         onClose()
     }
     const handleCreateProject = async () => {
-        if (true) {
+        if (!canCreate) {
             setShowUpgradeModal(true)
             return;
         }

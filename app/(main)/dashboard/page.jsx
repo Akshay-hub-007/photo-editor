@@ -35,6 +35,7 @@ function page() {
           {isLoading?<BarLoader width="100%" color="white"/>:
           projects && projects.length>0?(
             <>
+            <div>df</div>
             <ProjectsGrid projects={projects}/>
             </>
           ):<>
