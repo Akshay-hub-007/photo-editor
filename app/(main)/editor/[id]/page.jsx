@@ -6,7 +6,7 @@ import { Loader2, Monitor } from 'lucide-react'
 import { useConvexQuery } from '@/hooks/useConvexQuery'
 import { api } from '@/convex/_generated/api'
 import { RingLoader } from 'react-spinners'
-import Canvas from './_components/Canvas'
+import CanvasEditor from './_components/Canvas'
 
 function page() {
     const params = useParams()
@@ -97,7 +97,7 @@ function page() {
 
                         <div className='flex-1 bg-slate-800'>
                             {/* {canvas state} */}
-                            <Canvas project={project}/>
+                            <CanvasEditor project={project}/>
                         </div>
                     </div>
 
