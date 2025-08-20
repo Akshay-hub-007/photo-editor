@@ -72,7 +72,7 @@ function CanvasEditor({ project }) {
                 try {
                     const imageurl = project.currrentImageUrl || project.originalImage
                     console.log(imageurl)
-                    const fabricImage = new FabricImage.fromURL(imageurl, {
+                    const fabricImage = await FabricImage.fromURL(imageurl, {
                         crossOrigin: "anonymous"
                     })
                     console.log("object")
