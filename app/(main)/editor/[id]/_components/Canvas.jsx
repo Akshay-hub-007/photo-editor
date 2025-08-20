@@ -68,12 +68,15 @@ function CanvasEditor({ project }) {
                 canvas.getContext().scale(scaleFactor, scaleFactor)
             }
 
-            if (project.currrentImageUrl || project.originalImage) {
+            if (project?.currrentImageUrl || project?.originalImage) {
                 try {
                     const imageurl = project.currrentImageUrl || project.originalImage
+                    console.log(imageurl)
                     const fabricImage = new FabricImage.fromURL(imageurl, {
                         crossOrigin: "anonymous"
                     })
+                    console.log("object")
+                    console.log(fabricImage)
                     const imgAspectRatio = fabricImage.width / fabricImage.height
                     const canvasAspectRatio = project.width / project.height
                     let scaleX, scaleY;
