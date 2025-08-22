@@ -1,3 +1,4 @@
+"use client"
 import useCanvas from '@/context/context'
 import { api } from '@/convex/_generated/api'
 import { useConvexMutation } from '@/hooks/useConvexQuery'
@@ -70,22 +71,27 @@ function CanvasEditor({ project }) {
 
             if (project?.currrentImageUrl || project?.originalImage) {
                 try {
-                    const imageurl = project.currrentImageUrl || project.originalImage
-                    console.log(imageurl)
+                    console.log("project:",project)
+                    const imageurl = project.currrentImageUrl || project.originalImage;
+                    console.log("[Canvas] Attempting to load image URL:", imageurl);
                     const fabricImage = await FabricImage.fromURL(imageurl, {
                         crossOrigin: "anonymous"
-                    })
-                    console.log("object")
-                    console.log(fabricImage)
-                    const imgAspectRatio = fabricImage.width / fabricImage.height
-                    const canvasAspectRatio = project.width / project.height
+                    });
+                    if (!fabricImage) {
+                        console.error("[Canvas] FabricImage.fromURL returned null/undefined for:", imageurl);
+                        alert("Image failed to load. Check the URL and CORS settings.");
+                        return;
+                    }
+                    console.log("[Canvas] Loaded fabricImage:", fabricImage);
+                    const imgAspectRatio = fabricImage.width / fabricImage.height;
+                    const canvasAspectRatio = project.width / project.height;
                     let scaleX, scaleY;
                     if (imgAspectRatio > canvasAspectRatio) {
-                        scaleX = project.width / fabricImage.width
-                        scaleY = scaleX
+                        scaleX = project.width / fabricImage.width;
+                        scaleY = scaleX;
                     } else {
-                        scaleY = project.height / fabricImage.height
-                        scaleX = scaleY
+                        scaleY = project.height / fabricImage.height;
+                        scaleX = scaleY;
                     }
                     fabricImage.set({
                         left: project.width,
@@ -96,11 +102,13 @@ function CanvasEditor({ project }) {
                         scaleY,
                         selectable: true,
                         evented: true
-                    })
-                    canvas.add(fabricImage)
-                    canvas.centerObject(fabricImage)
+                    });
+                    canvas.add(fabricImage);
+                    canvas.centerObject(fabricImage);
+                    canvas.requestRenderAll();
                 } catch (error) {
-                    console.log("Error in loading the project" + error)
+                    console.error("[Canvas] Error in loading the project image:", error);
+                    alert("Error loading image: " + error.message);
                 }
             }
             // Load saved canvas state
@@ -146,7 +154,7 @@ function CanvasEditor({ project }) {
             />
             <div className='px-5'>
 
-                <canvas d="canvas" ref={canvasRef} className='border' />
+                <canvas id="canvas" ref={canvasRef} className='border' />
             </div>
         </div>
     )
