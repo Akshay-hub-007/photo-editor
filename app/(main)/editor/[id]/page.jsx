@@ -7,6 +7,8 @@ import { useConvexQuery } from '@/hooks/useConvexQuery'
 import { api } from '@/convex/_generated/api'
 import { RingLoader } from 'react-spinners'
 import EditorPage from './_components/canvas'
+import EditorTopBar from './_components/editor-topbar'
+import EditorSidebar from './_components/editor-sidebar'
 
 function page() {
     const params = useParams()
@@ -92,9 +94,10 @@ function page() {
                         </div>
                     )}
                     {/* {Top Bar} */}
+                    <EditorTopBar project={project}/>
                     <div className='flex flex-1 overflow-hidden'>
                         {/* {Sidebar} */}
-
+                        <EditorSidebar project={project}/>
                         <div className='flex-1 bg-slate-800'>
                             {/* {canvas state} */}
                             <EditorPage project={project}/>

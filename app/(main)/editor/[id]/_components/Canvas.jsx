@@ -106,9 +106,9 @@ function CanvasEditor({ project }) {
             }
 
             // Load saved canvas state
-            if (project.canvasState) {
+            if (project.canvaState) {
                 try {
-                    await canvas.loadFromJSON(project.canvasState);
+                    await canvas.loadFromJSON(project.canvaState);
                     canvas.requestRenderAll();
                 } catch (error) {
                     console.error("Error loading canvas state:", error);
@@ -137,42 +137,61 @@ function CanvasEditor({ project }) {
         };
     }, [project]);
 
-    //   const saveCanvasState = async () => {
-    //     if (!canvasEditor || !project) return;
+    useEffect(()=>{
+        const handlereSize=()=>{
+            if(!canvasEditor || !project) return;
 
-    //     try {
-    //       const canvasJSON = canvasEditor.toJSON();
-    //       await updateProject({
-    //         projectId: project._id,
-    //         canvasState: canvasJSON,
-    //       });
-    //     } catch (error) {
-    //       console.error("Error saving canvas state:", error);
-    //     }
-    //   };
+            const newScale=calculateViewportScale()
 
-    //   useEffect(() => {
-    //     if (!canvasEditor) return;
-    //     let saveTimeout;
+            canvasEditor.setDimensions({
+                width:project.width*newScale,
+                height:project.height*newScale
+            },{
+                backstoreOnly:false
+            })
+            canvasEditor.setZoom(newScale)
+            canvasEditor.calcOffset(),
+            canvasEditor.requestRenderAll()
+        }
+        window.addEventListener("resize",handlereSize)
+        return ()=>window.removeEventListener("resize",handlereSize)
+    },[canvasEditor,project])
+      const saveCanvasState = async () => {
+        if (!canvasEditor || !project) return;
 
-    //     const handleCanvasChange = () => {
-    //       clearTimeout(saveTimeout);
-    //       saveTimeout = setTimeout(() => {
-    //         saveCanvasState();
-    //       }, 2000);
-    //     };
+        try {
+          const canvasJSON = canvasEditor.toJSON();
+          await updateProject({
+            projectId: project._id,
+            canvaState: canvasJSON,
+          });
+        } catch (error) {
+          console.error("Error saving canvas state:", error);
+        }
+      };
 
-    //     canvasEditor.on("object:modified", handleCanvasChange);
-    //     canvasEditor.on("object:added", handleCanvasChange);
-    //     canvasEditor.on("object:removed", handleCanvasChange);
+      useEffect(() => {
+        if (!canvasEditor) return;
+        let saveTimeout;
 
-    //     return () => {
-    //       clearTimeout(saveTimeout);
-    //       canvasEditor.off("object:modified", handleCanvasChange);
-    //       canvasEditor.off("object:added", handleCanvasChange);
-    //       canvasEditor.off("object:removed", handleCanvasChange);
-    //     };
-    //   }, [canvasEditor]);
+        const handleCanvasChange = () => {
+          clearTimeout(saveTimeout);
+          saveTimeout = setTimeout(() => {
+            saveCanvasState();
+          }, 2000);
+        };
+
+        canvasEditor.on("object:modified", handleCanvasChange);
+        canvasEditor.on("object:added", handleCanvasChange);
+        canvasEditor.on("object:removed", handleCanvasChange);
+
+        return () => {
+          clearTimeout(saveTimeout);
+          canvasEditor.off("object:modified", handleCanvasChange);
+          canvasEditor.off("object:added", handleCanvasChange);
+          canvasEditor.off("object:removed", handleCanvasChange);
+        };
+      }, [canvasEditor]);
 
     //   useEffect(() => {
     //     if (!canvasEditor) return;
