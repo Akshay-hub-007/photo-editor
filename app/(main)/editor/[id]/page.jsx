@@ -58,7 +58,7 @@ function page() {
             canvasEditor,
             setCanvasEditor,
             activeTool,
-            onTolChange: setActiveTool,
+            onToolChange: setActiveTool,
             processingMessage,
             setProcessingMessage
         }}>
@@ -94,13 +94,13 @@ function page() {
                         </div>
                     )}
                     {/* {Top Bar} */}
-                    <EditorTopBar project={project}/>
+                    <EditorTopBar project={project} />
                     <div className='flex flex-1 overflow-hidden'>
                         {/* {Sidebar} */}
-                        <EditorSidebar project={project}/>
+                        <EditorSidebar project={project} />
                         <div className='flex-1 bg-slate-800'>
                             {/* {canvas state} */}
-                            <EditorPage project={project}/>
+                            <EditorPage project={project} />
                         </div>
                     </div>
 
