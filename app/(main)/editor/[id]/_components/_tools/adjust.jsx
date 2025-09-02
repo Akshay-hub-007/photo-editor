@@ -86,8 +86,19 @@ function AdjustControls() {
   const [isApplying, setIsApplying] = useState(false)
 
   const { canvasEditor } = useCanvas()
-  const applyFilters = (newValues) => {
+  const getActiveObject=()=>{
+    if(!canvasEditor) return
+    const activeObject=canvasEditor.getActiveObject()
 
+    if(activeObject && activeObject.type=="image")  return activeObject
+
+    const objects=canvasEditor.getObjects()
+
+    return objects.find((obj)=>obj.type=="image") 
+  }
+  const applyFilters = (newValues) => {
+      const imageObject=getActiveImage()
+      if(!imageObject || !isApplying) return;
   }
   const handleValueChange = (key, value) => {
     const newValues = {
@@ -97,6 +108,16 @@ function AdjustControls() {
     setFiltervalues(newValues)
 
     applyFilters(newValues)
+  }
+
+  if (canvasEditor) {
+    return <>
+      <div className='p-4'>
+        <p className='text-white/70 text-sm'>
+          Load an image  to start and adjusting
+        </p>
+      </div>
+    </>
   }
   return (
     <div className='space-y-6'>
