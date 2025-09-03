@@ -1,8 +1,8 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { filters } from 'fabric'
 import { Button } from '@/components/ui/button';
-import { RotateCcw } from 'lucide-react';
+import { Loader2, RotateCcw } from 'lucide-react';
 import useCanvas from '@/context/context';
 import { Slider } from '@/components/ui/slider';
 
@@ -86,20 +86,54 @@ function AdjustControls() {
   const [isApplying, setIsApplying] = useState(false)
 
   const { canvasEditor } = useCanvas()
-  const getActiveObject=()=>{
-    if(!canvasEditor) return
-    const activeObject=canvasEditor.getActiveObject()
+  const getActiveImage = () => {
+    if (!canvasEditor) return
+    const activeObject = canvasEditor.getActiveObject()
 
-    if(activeObject && activeObject.type=="image")  return activeObject
+    if (activeObject && activeObject.type == "image") return activeObject
 
-    const objects=canvasEditor.getObjects()
+    const objects = canvasEditor.getObjects()
 
-    return objects.find((obj)=>obj.type=="image") 
+    return objects.find((obj) => obj.type == "image") || null
   }
-  const applyFilters = (newValues) => {
-      const imageObject=getActiveImage()
-      if(!imageObject || !isApplying) return;
+  const applyFilters = async (newValues) => {
+    const imageObject = getActiveImage()
+    console.log(imageObject)
+    if (!imageObject || isApplying) return;
+    setIsApplying(true)
+    try {
+      const filtersToApply = [];
+      console.log("applying")
+      FILTER_CONFIGS.forEach((config) => {
+        const value = newValues[config.key];
+        if (value !== config.defaultValue) {
+          const transformedValue = config.transform(value);
+          filtersToApply.push(
+            new config.filterClass({
+              [config.valueKey]: transformedValue,
+            })
+          );
+        }
+      });
+
+      imageObject.filters = filtersToApply;
+
+      await new Promise((resolve) => {
+        imageObject.applyFilters();
+        canvasEditor.requestRenderAll();
+        setTimeout(resolve, 50);
+      });
+    } catch (error) {
+      console.error("Error applying filters:", error);
+    } finally {
+      setIsApplying(false);
+    }
   }
+  const resetfilters = () => {
+    setFiltervalues(DEFAULT_VALUES);
+    applyFilters(DEFAULT_VALUES);
+  };
+
   const handleValueChange = (key, value) => {
     const newValues = {
       ...filterValues,
@@ -109,8 +143,41 @@ function AdjustControls() {
 
     applyFilters(newValues)
   }
+  const extractFilterValues = (imageObject) => {
+    if (!imageObject?.filters?.length) return DEFAULT_VALUES;
 
-  if (canvasEditor) {
+    const extractedValues = { ...DEFAULT_VALUES };
+
+    imageObject.filters.forEach((filter) => {
+      const config = FILTER_CONFIGS.find(
+        (c) => c.filterClass.name === filter.constructor.name
+      );
+      if (config) {
+        const filterValue = filter[config.valueKey];
+        if (config.key === "hue") {
+          extractedValues[config.key] = Math.round(
+            filterValue * (180 / Math.PI)
+          );
+        } else {
+          extractedValues[config.key] = Math.round(filterValue * 100);
+        }
+      }
+    });
+
+    return extractedValues;
+  };
+
+
+  useEffect(() => {
+    const imageObject = getActiveImage();
+    console.log(imageObject)
+    if (imageObject?.filters) {
+      const existingValues = extractFilterValues(imageObject);
+      console.log(existingValues)
+      setFiltervalues(existingValues);
+    }
+  }, [canvasEditor]);
+  if (!canvasEditor) {
     return <>
       <div className='p-4'>
         <p className='text-white/70 text-sm'>
@@ -126,7 +193,7 @@ function AdjustControls() {
         <Button
           variant="ghost"
           size="sm"
-          // onClick={resetfilters}
+          onClick={resetfilters}
           className={"text-white/70 hover:text-white"}
         >
           <RotateCcw className='h-4 w-4 mr-2' />

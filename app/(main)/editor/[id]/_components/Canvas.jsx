@@ -108,8 +108,15 @@ function CanvasEditor({ project }) {
             // Load saved canvas state
             if (project.canvaState) {
                 try {
-                    await canvas.loadFromJSON(project.canvaState);
-                    canvas.requestRenderAll();
+                    await canvas.loadFromJSON(project.canvaState, () => {
+                        // After loading, re-apply filters to all image objects
+                        canvas.getObjects('image').forEach((img) => {
+                            if (img.filters && img.filters.length > 0) {
+                                img.applyFilters();
+                            }
+                        });
+                        canvas.requestRenderAll();
+                    });
                 } catch (error) {
                     console.error("Error loading canvas state:", error);
                 }
