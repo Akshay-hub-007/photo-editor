@@ -3,7 +3,7 @@ import React from 'react'
 function CropContent() {
   return (
     <div>
-      Crop
+      <div></div>
     </div>
   )
 }
