@@ -258,7 +258,7 @@ function CanvasEditor({ project }) {
     return (
         <div
             ref={containerRef}
-            className="relative flex items-center justify-center bg-secondary w-full h-full overflow-hidden"
+            className="relative flex items-center justify-center bg-secondary w-full h-full"
         >
             <div
                 className="absolute inset-0 opacity-10 pointer-events-none"

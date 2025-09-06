@@ -78,8 +78,8 @@ function page() {
                 </div>
             </div>
 
-            <div className='hidden  lg:block  min-h-screen  bg-slate-900'>
-                <div className='flex flex-col min-h-screen'>
+            <div className='hidden lg:block min-h-screen bg-slate-900'>
+                <div className='flex flex-col min-h-screen overflow-hidden'>
                     {processingMessage && (
                         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs z-50 flex items-center justify-center">
                             <div className="rounded-lg p-6 flex flex-col items-center gap-4">

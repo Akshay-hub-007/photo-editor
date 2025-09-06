@@ -57,7 +57,7 @@ function EditorSidebar({ project }) {
     }
     const Icon=toolconfig.icon
   return (
-    <div className='min-w-96 border-r flex flex-col'>
+    <div className='min-w-96 border-r flex flex-col '>
       <div className='p-4 border-b'>
         <div className='flex items-center gap-3'>
           <Icon className="h-5 w-5 text-white"/>
@@ -67,7 +67,7 @@ function EditorSidebar({ project }) {
         </div>
         <p className='text-sm text-white mt-1'>{toolconfig.description}</p>
       </div>
-      <div className='flex-1 p-4'>{renderConfig(activeTool,project)}</div>
+      <div className='flex-1 p-4 '>{renderConfig(activeTool,project)}</div>
     </div>
   )
 }

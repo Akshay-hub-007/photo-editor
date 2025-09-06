@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import useCanvas from '@/context/context';
 import { api } from '@/convex/_generated/api';
 import { useConvexMutation } from '@/hooks/useConvexQuery';
-import { Lock, Unlock, X } from 'lucide-react';
+import { Expand, Lock, Monitor, Unlock, X } from 'lucide-react';
 import React, { useState } from 'react'
 const ASPECT_RATIOS = [
   { name: "Instagram Story", ratio: [9, 16], label: "9:16" },
@@ -16,7 +16,7 @@ const ASPECT_RATIOS = [
 ];
 
 function ResizeControls({ project }) {
-  const { canvasEditor, processingMessage, setProcesssingMessage } = useCanvas()
+  const { canvasEditor, processingMessage, setProcessingMessage } = useCanvas()
   const [newWidth, setNewWidth] = useState(project?.width || 800);
   const [newHeight, setNewHeight] = useState(project?.height || 600);
   const [lockAspectRatio, setLockAspectRatio] = useState(true);
@@ -78,8 +78,63 @@ function ResizeControls({ project }) {
     setNewHeight(dimensions.height);
     setSelectedPreset(aspectRatio.name);
   };
+ const calculateViewportScale = () => {
+    const container = canvasEditor.getElement().parentNode;
+    if (!container) return 1;
+    const containerWidth = container.clientWidth - 40;
+    const containerHeight = container.clientHeight - 40;
+    const scaleX = containerWidth / newWidth;
+    const scaleY = containerHeight / newHeight;
+    return Math.min(scaleX, scaleY, 1);
+  };
 
-  return (
+
+  // Apply canvas resize
+  const handleApplyResize = async () => {
+    if (
+      !canvasEditor ||
+      !project ||
+      (newWidth === project.width && newHeight === project.height)
+    ) {
+      return;
+    }
+
+    setProcessingMessage ("Resizing canvas...");
+
+    try {
+      // Resize the canvas
+      canvasEditor.setWidth(newWidth);
+      canvasEditor.setHeight(newHeight);
+
+      // Calculate and apply viewport scale
+      const viewportScale = calculateViewportScale();
+
+      canvasEditor.setDimensions(
+        {
+          width: newWidth * viewportScale,
+          height: newHeight * viewportScale,
+        },
+        { backstoreOnly: false }
+      );
+
+      canvasEditor.setZoom(viewportScale);
+      canvasEditor.calcOffset();
+      canvasEditor.requestRenderAll();
+
+      // Update project in database
+      await updateProject({
+        projectId: project._id,
+        width: newWidth,
+        height: newHeight,
+        canvasState: canvasEditor.toJSON(),
+      });
+    } catch (error) {
+      console.error("Error resizing canvas:", error);
+      alert("Failed to resize canvas. Please try again.");
+    } finally {
+      setProcessingMessage (null);
+    }
+  }; return (
     <div className='space-y-6'>
       <div className='bg-slate-700/30 rounded-lg p-3'>
         <h4 className='text-sm font-medium text-white mb-2'>Current Size</h4>
@@ -127,25 +182,73 @@ function ResizeControls({ project }) {
 
       <div className='space-y-3'>
         <h3 className='text-sm font-medium text-white'>Aspect Ratios</h3>
-        <div className='grid  grid-cols-1 max-h-60  overflow-y-auto'>
+        <div className='grid  grid-cols-1 max-h-60  overflow-y-auto  gap-2'>
           {ASPECT_RATIOS.map((aspectRatio) => {
             const dimensions = calculateAspectRatioDimensions(aspectRatio.ratio)
-
+            const isSelected = selectedPreset === aspectRatio.name;
             return (
               <Button
-                key={aspectRatio.ratio}
-                variant={
-                  selectedPreset === aspectRatio.ratio ? "default" : "outline"
-                }
+                key={aspectRatio.name}
+                variant={isSelected ? "default" : "ghost"}
                 size={"sm"}
                 onClick={() => applyAspectRatio(aspectRatio)}
+                className={`justify-between h-auto py-2 ${isSelected ? "bg-cyan-500 hover:bg-cyan-600" : "bg-slate-700 hover:bg-slate-800 text-white"
+                  }`}
               >
-
+                <div>
+                  <div className='font-medium'>{aspectRatio.name}</div>
+                  <div className='text-xs opacity-70'>
+                    {dimensions.width} x {dimensions.height} {aspectRatio.label}
+                  </div>
+                </div>
+                <Monitor className='h-4 w-4' />
               </Button>
             )
           })}
         </div>
+      </div>
+      {hasChanges && (
+        <div className="bg-slate-700/30 rounded-lg p-3">
+          <h4 className="text-sm font-medium text-white mb-2">
+            New Size Preview
+          </h4>
+          <div className="text-xs text-white/70">
+            <div>
+              New Canvas: {newWidth} × {newHeight} pixels
+            </div>
+            <div className="text-cyan-400">
+              {newWidth > project.width || newHeight > project.height
+                ? "Canvas will be expanded"
+                : "Canvas will be cropped"}
+            </div>
+            <div className="text-white/50 mt-1">
+              Objects will maintain their current size and position
+            </div>
+          </div>
+        </div>
+      )}
 
+      {/* Apply Button */}
+      <Button
+        onClick={handleApplyResize}
+        disabled={!hasChanges || processingMessage}
+        className="w-full"
+        variant="primary"
+      >
+        <Expand className="h-4 w-4 mr-2" />
+        Apply Resize
+      </Button>
+
+      {/* Instructions */}
+      <div className="bg-slate-700/30 rounded-lg p-3">
+        <p className="text-xs text-white/70">
+          <strong>Resize Canvas:</strong> Changes canvas dimensions.
+          <br />
+          <strong>Aspect Ratios:</strong> Smart sizing based on your current
+          canvas.
+          <br />
+          Objects maintain their size and position.
+        </p>
       </div>
     </div>
   )
