@@ -5,7 +5,7 @@ import useCanvas from '@/context/context';
 import { api } from '@/convex/_generated/api';
 import { useConvexMutation } from '@/hooks/useConvexQuery';
 import { Expand, Lock, Monitor, Unlock, X } from 'lucide-react';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 const ASPECT_RATIOS = [
   { name: "Instagram Story", ratio: [9, 16], label: "9:16" },
   { name: "Instagram Post", ratio: [1, 1], label: "1:1" },
@@ -29,7 +29,7 @@ function ResizeControls({ project }) {
       setNewHeight(Math.round(width * ratio))
     }
   }
-
+  
   const handleHeightChange = (value) => {
     const height = parseInt(value) || 0;
     setNewHeight(height);
@@ -46,7 +46,14 @@ function ResizeControls({ project }) {
     data,
     isLoading
   } = useConvexMutation(api.projects.updateProject)
-
+useEffect(()=>{
+    if(!isLoading && data)
+    {
+      setTimeout(()=>{
+        window.dispatchEvent(new Event("resize"))
+      },500)
+    }
+  },[data,isLoading])
   if (!canvasEditor || !project) {
     return (
       <div className='p-4'>
@@ -126,7 +133,7 @@ function ResizeControls({ project }) {
         projectId: project._id,
         width: newWidth,
         height: newHeight,
-        canvasState: canvasEditor.toJSON(),
+        canvaState: canvasEditor.toJSON(),
       });
     } catch (error) {
       console.error("Error resizing canvas:", error);
@@ -134,7 +141,9 @@ function ResizeControls({ project }) {
     } finally {
       setProcessingMessage (null);
     }
-  }; return (
+  }; 
+
+  return (
     <div className='space-y-6'>
       <div className='bg-slate-700/30 rounded-lg p-3'>
         <h4 className='text-sm font-medium text-white mb-2'>Current Size</h4>
