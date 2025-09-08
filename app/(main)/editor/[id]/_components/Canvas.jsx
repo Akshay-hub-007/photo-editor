@@ -43,15 +43,12 @@ function CanvasEditor({ project }) {
                 defaultCursor: "default",
                 allowTouchScrolling: false,
                 renderOnAddRemove: true,
-                skipTargetFind: false,
-            });
-
-            // Sync both lower and upper canvas layers
-            canvas.setDimensions(
-                {
-                    width: project.width * viewportScale,
                     height: project.height * viewportScale,
                 },
+                        const scale = Math.min(
+                            project.width / fabricImage.width,
+                            project.height / fabricImage.height
+                        );
                 { backstoreOnly: false }
             );
 
