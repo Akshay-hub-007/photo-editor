@@ -130,14 +130,17 @@ function CropContent() {
 
   // Create the crop rectangle overlay
   const createCropRectangle = (image) => {
-    // Calculate image bounds on canvas
-    const bounds = image.getBoundingRect();
-
+    // Use image's center, scale, and angle for crop rectangle
+    const cropWidth = image.width * image.scaleX * 0.8;
+    const cropHeight = image.height * image.scaleY * 0.8;
     const cropRectangle = new Rect({
-      left: bounds.left + bounds.width * 0.1,
-      top: bounds.top + bounds.height * 0.1,
-      width: bounds.width * 0.8,
-      height: bounds.height * 0.8,
+      left: image.left,
+      top: image.top,
+      originX: 'center',
+      originY: 'center',
+      width: cropWidth,
+      height: cropHeight,
+      angle: image.angle || 0,
       fill: "transparent",
       stroke: "#00bcd4",
       strokeWidth: 2,
@@ -153,7 +156,6 @@ function CropContent() {
       borderScaleFactor: 1,
       hasControls: true,
       hasBorders: true,
-      // Add a custom property to identify crop rectangles
       isCropRectangle: true,
     });
 
