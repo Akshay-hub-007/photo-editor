@@ -1,3 +1,38 @@
+# Photo Editor
+
+A modern web-based photo editor with AI-powered features. Create, edit, and enhance images using smart tools and generative AI.
+
+## Features
+- Crop, resize, and adjust images
+- AI background removal
+- AI image extender and upscaler
+- Color and light adjustments
+- Text and content editing
+- Project management (create, edit, delete)
+
+## Usage
+1. Create a new project and upload an image
+2. Use the editor tools (crop, resize, adjust, AI features)
+3. Save and export your edited images
+
+## Setup
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Start the development server:
+   ```bash
+   npm run dev
+   ```
+3. Open your browser at `http://localhost:3000`
+
+## Plans
+- Free: 3 projects, 20 exports/month, basic tools
+- Pro: Unlimited projects, all AI features
+
+---
+For more details, see the code and UI for each feature in the `components/` and `app/` folders.
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
