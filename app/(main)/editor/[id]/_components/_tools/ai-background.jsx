@@ -1,6 +1,6 @@
 import React from 'react'
 
-function BackgroundControls() {
+function BackgroundControls({project}) {
   return (
     <div>
       

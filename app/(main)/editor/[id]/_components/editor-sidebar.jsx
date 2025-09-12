@@ -6,6 +6,7 @@ import React, { useState } from 'react'
 import CropContent from './_tools/crop';
 import ResizeControls from './_tools/resize';
 import AdjustControls from './_tools/adjust';
+import BackgroundControls from './_tools/ai-background';
 
 
   const TOOL_CONFIGS = {
@@ -81,6 +82,8 @@ const renderConfig=(activeTool,project)=>{
       return <ResizeControls project={project}/>
     case "adjust":
       return <AdjustControls/>
+    case "background":
+      <BackgroundControls  project={project}/> 
     default:
       return <div className='text-white'> Select a tool to get Started</div>
   }
