@@ -74,6 +74,7 @@ function EditorSidebar({ project }) {
 }
 
 const renderConfig=(activeTool,project)=>{
+  console.log(activeTool)
   switch(activeTool)
   {
     case "crop":
@@ -83,7 +84,7 @@ const renderConfig=(activeTool,project)=>{
     case "adjust":
       return <AdjustControls/>
     case "background":
-      <BackgroundControls  project={project}/> 
+      return <BackgroundControls  project={project}/> 
     default:
       return <div className='text-white'> Select a tool to get Started</div>
   }

@@ -98,7 +98,7 @@ function EditorTopBar({
             setShowUpgradeModal(true)
             return  
         }
-
+        console.log(toolId)
         onToolChange(toolId)
     }
     return (
