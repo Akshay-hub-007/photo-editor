@@ -1,9 +1,11 @@
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import useCanvas from '@/context/context';
 import { FabricImage } from 'fabric';
 import { ImageIcon, Palette, Trash2 } from 'lucide-react';
 import React, { useState } from 'react'
+import { HexColorPicker } from 'react-colorful';
 import { toast } from 'sonner';
 
 
@@ -12,6 +14,8 @@ const UNPLASH_API_URL = "https://api.unsplash.com"
 function BackgroundControls({ project }) {
   const { canvasEditor, processingMessage, setProcessingMessage } = useCanvas();
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
+  // Helper to validate hex color
+  const isValidHex = (hex) => /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/.test(hex);
   const [searchQuery, setSearchQuery] = useState("");
   const [unsplashImages, setUnsplashImages] = useState(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -119,9 +123,38 @@ function BackgroundControls({ project }) {
               Choose a Solid Color for your canvas background
 
             </p>
+          <div className='space-y-4'>
+              <HexColorPicker color={backgroundColor} onChange={setBackgroundColor} style={{width:"100%"}} />
+          </div>
+          <div className='flex items-center gap-2'>
+          <Input
+            value={backgroundColor}
+            onChange={(e)=> {
+              const val = e.target.value;
+              if (isValidHex(val)) {
+                setBackgroundColor(val);
+              } else {
+                setBackgroundColor(val); // still update so user can finish typing
+              }
+            }}
+            placeholder="#ffffff"
+            className={"flex-1 bg-slate-700 border-white/20 text-white"}
+          />
+          <div className='w-10 h-10  rounded border  border-white/20'
+          style={{backgroundColor}}
+          />
+          </div>
+          <Button
+          // onClick={handleColorbackground}
+          className={"w-full"}
+          variant={"primary"}
+          >
+            <Palette className='w-4 h-4 mr-2'/>
+            Apply Color
+          </Button>
           </div>
         </TabsContent>
-        <TabsContent value="image" className={"space-y-4 mt-6"}>
+        <TabsContent value="image" className={"space-y-4 mt-6"} >
           Make Changes  to your account here
         </TabsContent>
       </Tabs>
