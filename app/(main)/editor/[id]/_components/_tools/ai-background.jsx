@@ -9,8 +9,8 @@ import { HexColorPicker } from 'react-colorful';
 import { toast } from 'sonner';
 
 
-const UNPLASH_API_KEY = process.env.NEXT_PUBLIC_UNPLASH_ACCESS_KEY
-const UNPLASH_API_URL = "https://api.unsplash.com"
+const UNSPLASH_ACCESS_KEY = process.env.NEXT_PUBLIC_UNPLASH_ACCESS_KEY
+const UNSPLASH_API_URL = "https://api.unsplash.com"
 function BackgroundControls({ project }) {
   const { canvasEditor, processingMessage, setProcessingMessage } = useCanvas();
   const [backgroundColor, setBackgroundColor] = useState("#ffffff");
@@ -78,8 +78,24 @@ function BackgroundControls({ project }) {
     canvasEditor.requestRenderAll();
   }
 
-  const handleKeyPress=()=>{
-    
+  const searchUnsplashImages=async()=>{
+      if(!searchQuery.trim() || !UNSPLASH_ACCESS_KEY) return
+      setIsSearching(true)
+      try {
+        const response=await fetch(`${UNSPLASH_API_URL}/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=12`,{
+          headers:{
+            Authroization: `Client-ID ${UNSPLASH_ACCESS_KEY}`
+          }
+        })
+      } catch (error) {
+        
+      }
+  }
+  const handleKeyPress=(e)=>{
+    if(e.key=="Enter")
+    {
+      searchUnsplashImages();
+    }
   }
   return (
     <div className='space-y-6 relative h-full'>
