@@ -77,23 +77,49 @@ function BackgroundControls({ project }) {
     canvasEditor.backgroundColor = backgroundColor;
     canvasEditor.requestRenderAll();
   }
+  const handleImageBackground = (url, id) => {
 
-  const searchUnsplashImages=async()=>{
-      if(!searchQuery.trim() || !UNSPLASH_ACCESS_KEY) return
-      setIsSearching(true)
-      try {
-        const response=await fetch(`${UNSPLASH_API_URL}/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=12`,{
-          headers:{
-            Authroization: `Client-ID ${UNSPLASH_ACCESS_KEY}`
-          }
-        })
-      } catch (error) {
-        
-      }
   }
-  const handleKeyPress=(e)=>{
-    if(e.key=="Enter")
-    {
+  const searchUnsplashImages = async () => {
+    if (!searchQuery.trim()) return;
+
+    if (!UNSPLASH_ACCESS_KEY) {
+      toast.error("Unsplash API key not configured. Set NEXT_PUBLIC_UNSPLASH_ACCESS_KEY in your .env");
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const response = await fetch(`${UNSPLASH_API_URL}/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=12`, {
+        headers: {
+          Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`
+        }
+      });
+
+      if (!response.ok) {
+        if (response.status === 401 || response.status === 403) {
+          toast.error("Unsplash authentication failed (401/403). Check your API key and permissions.");
+        } else {
+          toast.error("Failed to search images on Unsplash");
+        }
+        console.error("Unsplash search failed", response.status, await response.text());
+        setUnsplashImages([]);
+        return;
+      }
+
+      const data = await response.json();
+      setUnsplashImages(data.results || []);
+    } catch (error) {
+      console.error("Error searching Unsplash", error);
+      toast.error("Failed to search images. Please try again.");
+    } finally {
+      setIsSearching(false);
+    }
+  }
+
+  console.log(unsplashImages)
+  const handleKeyPress = (e) => {
+    if (e.key == "Enter") {
       searchUnsplashImages();
     }
   }
@@ -180,18 +206,46 @@ function BackgroundControls({ project }) {
               Image Background
             </h3>
             <p className='text-xs text-white/70  mb-4'>
-             Search  and use high-quality images from unsplash
+              Search  and use high-quality images from unsplash
             </p>
           </div>
           <div className='flex gap-2'>
             <Input
-            value={searchQuery}
-            onChange={(e)=>setSearchQuery(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Search for backgrounds..."
-            className={"flex-1  bg-slate-700 border-white/20 text-white"}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Search for backgrounds..."
+              className={"flex-1  bg-slate-700 border-white/20 text-white"}
             />
           </div>
+          {
+            unsplashImages?.length > 0 && (
+              <div className='space-y-3'>
+                <h3 className='text-sm font-medium  text-white'>
+                  Search Results {unsplashImages.length}
+
+                </h3>
+
+                <div className='grid grid-cols-2 gap-3 max-h-36 overflow-y-auto'>
+                  {unsplashImages.map((img) => (
+                    <div
+                      key={img.id}
+                      className='relative group cursor-pointer rounded-lg overflow-hidden border border-white/10 hover:border-cyan-400 transition-colors'
+                    >
+                   <img
+                   src={img.urls.small}
+                   alt={img.alt_description}
+                   className='w-full h-24  object-cover'
+                   />
+
+                    </div>
+                  ))}
+                </div>
+
+              </div>
+
+            )
+          }
         </TabsContent>
       </Tabs>
     </div>
