@@ -77,9 +77,56 @@ function BackgroundControls({ project }) {
     canvasEditor.backgroundColor = backgroundColor;
     canvasEditor.requestRenderAll();
   }
-  const handleImageBackground = (url, id) => {
+  const handleImageBackground = async (url, id) => {
+    if (!canvasEditor) return;
+    setSelectedImageId(id);
+    try {
+      // Fire Unsplash download endpoint for tracking (non-blocking)
+      if (UNSPLASH_ACCESS_KEY) {
+        fetch(`${UNSPLASH_API_URL}/photos/${id}/download`, {
+          headers: {
+            Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}`,
+          },
+        }).catch(() => {});
+      }
 
-  }
+      // Load image via Fabric's helper (returns a fabric.Image)
+      const fabricImage = await FabricImage.fromURL(url, {
+        crossOrigin: 'anonymous',
+      });
+
+      const canvasWidth = project.width;
+      const canvasHeight = project.height;
+      const scaleX = canvasWidth / fabricImage.width;
+      const scaleY = canvasHeight / fabricImage.height;
+      const scale = Math.max(scaleX, scaleY);
+
+      fabricImage.set({
+        scaleX: scale,
+        scaleY: scale,
+        originX: 'center',
+        originY: 'center',
+        left: canvasWidth / 2,
+        top: canvasHeight / 2,
+        selectable: false,
+        evented: false,
+      });
+
+      // Prefer the Fabric API for setting background image
+      if (typeof canvasEditor.setBackgroundImage === 'function') {
+        canvasEditor.setBackgroundImage(fabricImage, canvasEditor.requestRenderAll.bind(canvasEditor));
+      } else {
+        canvasEditor.backgroundImage = fabricImage;
+        canvasEditor.requestRenderAll();
+      }
+
+      setSelectedImageId(null);
+    } catch (error) {
+      console.log('Failed to set the background Image', error);
+      toast.error('Failed to set background Image');
+      setSelectedImageId(null);
+    }
+  };
   const searchUnsplashImages = async () => {
     if (!searchQuery.trim()) return;
 
@@ -136,7 +183,8 @@ function BackgroundControls({ project }) {
           </p>
         </div>
         <Button className={"w-full"} variant={"primary"}
-          onClick={handleBackgroundRemoval || !getMainImage}
+          onClick={handleBackgroundRemoval}
+          disabled={!getMainImage()}
 
         >
           <Trash2 className="h-4 w-4 mr-2" />
@@ -231,7 +279,8 @@ function BackgroundControls({ project }) {
                     <div
                       key={img.id}
                       className='relative group cursor-pointer rounded-lg overflow-hidden border border-white/10 hover:border-cyan-400 transition-colors'
-                    >
+                      onClick={() => handleImageBackground(img.urls.regular, img.id)}
+                   >
                    <img
                    src={img.urls.small}
                    alt={img.alt_description}
@@ -248,6 +297,17 @@ function BackgroundControls({ project }) {
           }
         </TabsContent>
       </Tabs>
+        <div className="pt-4 border-t border-white/10 bottom-0 w-full">
+        <Button
+          // onClick={handleRemoveBackground}
+          className="w-full"
+          variant="outline"
+        >
+          <Trash2 className="h-4 w-4 mr-2" />
+          Clear Canvas Background
+        </Button>
+      </div>
+    
     </div>
   )
 }
