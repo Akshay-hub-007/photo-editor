@@ -262,4 +262,4 @@ export function CanvasEditor({ project }) {
   );
 }
 
-// export default CanvasEditor;
+export default CanvasEditor;

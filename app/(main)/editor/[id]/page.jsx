@@ -6,7 +6,7 @@ import { Loader2, Monitor } from 'lucide-react'
 import { useConvexQuery } from '@/hooks/useConvexQuery'
 import { api } from '@/convex/_generated/api'
 import { RingLoader } from 'react-spinners'
-import { CanvasEditor as EditorPage } from './_components/canvas.jsx';
+import EditorPage from './_components/canvas';
 import EditorTopBar from './_components/editor-topbar'
 import EditorSidebar from './_components/editor-sidebar'
 
