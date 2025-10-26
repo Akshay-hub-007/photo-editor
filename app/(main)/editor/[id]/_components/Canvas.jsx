@@ -4,7 +4,7 @@ import { useConvexMutation } from "@/hooks/useConvexQuery";
 import { Canvas, FabricImage } from "fabric";
 import React, { useEffect, useRef, useState } from "react";
 
-function CanvasEditor({ project }) {
+export function CanvasEditor({ project }) {
   const canvasRef = useRef();
   const containerRef = useRef();
   const { canvasEditor, setCanvasEditor, activeTool, onToolChange } =
@@ -262,4 +262,4 @@ function CanvasEditor({ project }) {
   );
 }
 
-export default CanvasEditor;
+// export default CanvasEditor;
